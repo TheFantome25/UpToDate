@@ -4,11 +4,16 @@ Keep the url of your opened bookmarks updated when you advance in your reading
 using addListener on chrome.tabs.onUpdated 
 */
 
+
 //The list of all your bookmarks
 var upToDateBookmarks = new Array();
 
+
 //The map of tab if with the coresponding bookmark oppen inside it.
 const activeBookmarksbyId = new Map();
+
+
+
 
 //Loads bookmarks from the specific folder TheScans
 chrome.bookmarks.getTree(function (bookmarkTreeNodes) {
@@ -17,6 +22,7 @@ chrome.bookmarks.getTree(function (bookmarkTreeNodes) {
     addAllFolder(folder);
   }
 });
+
 
 //Recursive methode to find a folder by name
 function findFolder(node, folderName) {
@@ -34,6 +40,7 @@ function findFolder(node, folderName) {
   return null;//Should be the creation of the said folder...
 }
 
+
 //Adds all the bookmarks even if you have multiple subfolders
 function addAllFolder(node) {
   if (node.children) {
@@ -47,9 +54,6 @@ function addAllFolder(node) {
 }
 
 
-
-
-
 //If tab is created with url from out folder then : we keep track of it and it's url changes.
 chrome.tabs.onCreated.addListener(function (tab) {
   // This function will be called when a new tab is created.
@@ -61,6 +65,7 @@ chrome.tabs.onCreated.addListener(function (tab) {
     }
   });
 });
+
 
 //We remove it's ID (incase reuse ?)
 chrome.tabs.onRemoved.addListener(function (tab) {
