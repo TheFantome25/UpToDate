@@ -75,7 +75,6 @@ chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
   console.log(tab.pendingUrl);
 
   // Check if the URL changed and if there was a redirect
-  if (changeInfo.url && changeInfo.url !== tab.url) {
     var isActiveTab = false;
     activeTabs.forEach(element => {
       if (tabId === element) {
@@ -84,13 +83,11 @@ chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
     });
 
     if (isInFav) {
-      console.log('T2 was here');
+      console.log('We must find the good favorite and update it...');
 
     }
-  } else {
-    console.log("WTF");
   }
-}
+
 );
 
 
