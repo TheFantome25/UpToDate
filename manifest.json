@@ -1,8 +1,8 @@
 {
   "manifest_version": 2,
-  "name": "ScanFolder Favorites",
+  "name": "UpToDate bookmarks manager",
   "version": "1.0",
-  "description": "Add or remove favorites inside the scanFolder folder.",
+  "description": "Keeps bookmarks updated inside the UpTwoDate folder.",
   "permissions": ["tabs", "storage","bookmarks","webNavigation"],
   "background": {
     "scripts": ["background.js"],
