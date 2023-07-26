@@ -61,7 +61,7 @@ chrome.tabs.onCreated.addListener(function (tab) {
   upToDateBookmarks.forEach(element => {
     if (tab.pendingUrl === element.url) {
       activeBookmarksbyId.set(tab.id, element);
-      console.log("onCreated.addListener " + tab.pendingUrl);
+      console.log("onCreated.addListener tabid: " + tab.id + " tab pending url :" + tab.pendingUrl);
     }
   });
 });
@@ -72,6 +72,8 @@ chrome.tabs.onRemoved.addListener(function (tab) {
   // This function will be called when a new tab is created.
   // Pending url will be the one to open the tab
   if (activeBookmarksbyId.has(tab.id)) {
+    console.log("onRemoved.addListener " + tab.id);
+
     activeBookmarksbyId.delete(tab.id);
   }
 });
@@ -81,19 +83,25 @@ chrome.tabs.onRemoved.addListener(function (tab) {
 // It is here that we want to update the favorite if it is an active tab (avoid looking at every tabs and every url redirect)
 chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
   if (activeBookmarksbyId.has(tabId)) {
-    if (changeInfo.url !== "") {
-      let updatedBookmark = activeBookmarksbyId.get(tabId);
+    console.log("Bookmark modification of url detected changeInfo.url: " + changeInfo.url + " tab.url: " + tab.url);
+    console.log("State of condition url defined " + (changeInfo.url !== undefined));
+
+    let updatedBookmark = activeBookmarksbyId.get(tabId);
+    console.log("State of condition nouvelle url " + (updatedBookmark.url !== changeInfo.url));
+
+    if (changeInfo.url !== undefined && updatedBookmark.url !== changeInfo.url) {
       updatedBookmark.url = changeInfo.url
 
-      const twoPropBookmark = {
-        title: updatedBookmark.title,
+      console.log("We are in");
+
+      const newURlPropBookmark = {
         url: updatedBookmark.url
       };
 
       // Update the bookmark using the chrome.bookmarks.update method
-      chrome.bookmarks.update(updatedBookmark.id, twoPropBookmark, () => {
+      chrome.bookmarks.update(updatedBookmark.id, newURlPropBookmark, () => {
         // Bookmark updated successfully
-        console.log("Bookmark updated successfully");
+        console.log("Bookmark updated successfully tabid: " + tabId + " tab url: " + tab.url + " tab title " + tab.title);
       });
     }
   }
