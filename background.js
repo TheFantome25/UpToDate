@@ -30,7 +30,7 @@ function initializeAllFolderAndBookmarks() {
   idsOfBookmarksInGoodFolder = new Array();
 
   chrome.bookmarks.getTree(function (bookmarkTreeNodes) {
-    var folder = findFolder(bookmarkTreeNodes[0], "UpToDate");
+    var folder = findFolder(bookmarkTreeNodes[0], "UpdatedBookmarks");
     if (folder) {
 
       addAllFoldersAndBookmarks(folder);
@@ -212,6 +212,7 @@ function handleBookmarkChanged(id, changeInfo) {
         console.log("bookmark found in active list ");
       }
     });
+
     if (bookmarkInActiveList !== undefined) {
       if (changeInfo.title.split("|")[1] !== undefined) {
         if (bookmarkInActiveList.url !== changeInfo.url || bookmarkInActiveList.title !== changeInfo.title) {
@@ -220,9 +221,11 @@ function handleBookmarkChanged(id, changeInfo) {
           console.log("bookmark modified by user and not program")
         }
       } else if (changeInfo.title.split("|")[1] === undefined && changeInfo.url !== undefined) {
-        console.log("bookmark modified by user to be removed from active list")
+        console.log("bookmark modified by user to be removed from active list title: " + changeInfo.title.split("|")[1] + " url" + changeInfo.url)
         chrome.bookmarks.get(id, (bookmarkArray) => {
           const bookmark = bookmarkArray[0];
+          console.log("Bookmark found: " + bookmark.title);
+
           upToDateBookmarks.delete(changeInfo.title.split("|")[1]);
 
         });
@@ -234,7 +237,6 @@ function handleBookmarkChanged(id, changeInfo) {
           const bookmark = bookmarkArray[0];
           console.log("Bookmark found: " + bookmark.title);
           upToDateBookmarks.set(changeInfo.title.split("|")[1], bookmark);
-          idsOfBookmarksInGoodFolder.push(id)
         });
       }
     }

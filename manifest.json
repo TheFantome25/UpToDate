@@ -1,11 +1,18 @@
 {
   "manifest_version": 2,
-  "name": "UpToDate bookmarks manager",
+  "name": "UpdatedBookmarks bookmarks manager",
   "version": "1.0",
-  "description": "Keeps bookmarks updated inside the UpTwoDate folder.",
-  "permissions": ["tabs", "storage","bookmarks","webNavigation"],
+  "description": "Keeps bookmarks updated inside the UpdatedBookmarks folder.",
+  "permissions": [
+    "tabs",
+    "storage",
+    "bookmarks",
+    "webNavigation"
+  ],
   "background": {
-    "scripts": ["background.js"],
+    "scripts": [
+      "background.js"
+    ],
     "persistent": false
   },
   "browser_action": {
