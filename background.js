@@ -34,8 +34,6 @@ function initializeAllFolderAndBookmarks() {
     if (folder) {
 
       addAllFoldersAndBookmarks(folder);
-    } else {
-      console.log("Poop there is no folder");
     }
   });
 }
@@ -60,6 +58,7 @@ function findFolder(node, folderName) {
 //Adds all the bookmarks even if you have multiple subfolders
 function addAllFoldersAndBookmarks(node) {
   idsOfBookmarksInGoodFolder.push(node.id)
+  console.log("idsOfBookmarksInGoodFolder " + node.id)
 
   if (!node.url) {
     for (var i = 0; i < node.children.length; i++) {
@@ -83,9 +82,7 @@ chrome.tabs.onCreated.addListener(function (tab) {
 
 function getMatchingUrlBookmark(urlToFind) {
   for (const element of upToDateBookmarks.keys()) {
-    console.log(element)
     if (urlToFind.includes(element)) {
-      console.log("found the bitch");
       return (upToDateBookmarks.get(element));
     }
   }
@@ -169,24 +166,12 @@ async function setExtensionIcon(tabId, active) {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-chrome.bookmarks.onCreated.addListener(handleBookmarkCreated);
 //Section bookmarks events listener
+chrome.bookmarks.onCreated.addListener(handleBookmarkCreated);
 function handleBookmarkCreated(id, bookmarkInfo) {
   //Check if it is a bookmark of our elements
   if (idsOfBookmarksInGoodFolder.includes(bookmarkInfo.parentId)) {
-    console.log("bookmark of interest created or moved")
+    console.log("bookmark of interest created or moved " + bookmarkInfo);
 
     idsOfBookmarksInGoodFolder.push(id);
 
@@ -194,19 +179,20 @@ function handleBookmarkCreated(id, bookmarkInfo) {
     if (startURL !== undefined) {
       upToDateBookmarks.set(startURL, bookmarkInfo);
     }
-
   }
 }
+
 
 chrome.bookmarks.onRemoved.addListener(handleBookmarkRemoved);
 // Function to handle bookmark removal
 function handleBookmarkRemoved(id, removeInfo) {
   //Check if it is a bookmark of our elements
-  if (idsOfBookmarksInGoodFolder.includes(removeInfo.parentId)) {
-    if (!removeInfo.node.url) {
-      idsOfBookmarksInGoodFolder.delete(id)
-    } else {
-      let startURL = removeInfo.node.title.split("|")[1];
+  if (idsOfBookmarksInGoodFolder.includes(id)) {
+    var index = idsOfBookmarksInGoodFolder.indexOf(id);
+    idsOfBookmarksInGoodFolder.splice(index, 1);
+
+    if (removeInfo.node.url) {
+      var startURL = removeInfo.node.title.split("|")[1];
       upToDateBookmarks.delete(startURL);
     }
   }
@@ -216,54 +202,83 @@ function handleBookmarkRemoved(id, removeInfo) {
 chrome.bookmarks.onChanged.addListener(handleBookmarkChanged);
 function handleBookmarkChanged(id, changeInfo) {
   if (idsOfBookmarksInGoodFolder.includes(id)) {
+    console.log("bookmark of interest modified " + id + " " + changeInfo.title + changeInfo.url);
+
     //if it is in the list : modify it
-    var bookmarkInActiveList;
+    let bookmarkInActiveList;
     upToDateBookmarks.forEach((value) => {
       if (value.id === id) {
         bookmarkInActiveList = value;
-      }    //the only case of interest would be a change that the user made in the bookmars and not in navigating
-
+        console.log("bookmark found in active list ");
+      }
     });
-    if (bookmarkInActiveList !== undefined && changeInfo.title.split("|")[1] !== undefined) {
-      if (bookmarkInActiveList.url !== changeInfo.url || bookmarkInActiveList.title !== changeInfo.title) {
-        bookmarkInActiveList.title = changeInfo.title.split("|")[1];
-        bookmarkInActiveList.url = changeInfo.url;
-        console.log("bookmark modified by user and not program")
+    if (bookmarkInActiveList !== undefined) {
+      if (changeInfo.title.split("|")[1] !== undefined) {
+        if (bookmarkInActiveList.url !== changeInfo.url || bookmarkInActiveList.title !== changeInfo.title) {
+          bookmarkInActiveList.title = changeInfo.title.split("|")[1];
+          bookmarkInActiveList.url = changeInfo.url;
+          console.log("bookmark modified by user and not program")
+        }
+      } else if (changeInfo.title.split("|")[1] === undefined && changeInfo.url !== undefined) {
+        console.log("bookmark modified by user to be removed from active list")
+        chrome.bookmarks.get(id, (bookmarkArray) => {
+          const bookmark = bookmarkArray[0];
+          upToDateBookmarks.delete(changeInfo.title.split("|")[1]);
+
+        });
       }
     } else {
       if (changeInfo.title.split("|")[1] !== undefined && changeInfo.url !== undefined) {
-        chrome.bookmarks.get(id, (bookmark) => {
-          if (bookmark !== undefined) {
-            upToDateBookmarks.set(changeInfo.title.split("|")[1], bookmark);
-          }
+        console.log("bookmark modified by user to be added to active list" + changeInfo.url)
+        chrome.bookmarks.get(id, (bookmarkArray) => {
+          const bookmark = bookmarkArray[0];
+          console.log("Bookmark found: " + bookmark.title);
+          upToDateBookmarks.set(changeInfo.title.split("|")[1], bookmark);
+          idsOfBookmarksInGoodFolder.push(id)
         });
-
-
       }
-
-
     }
-
   }
 }
-
-//Tu change un élément: il était mal répertorié mauvais titre
-
 
 
 chrome.bookmarks.onMoved.addListener(handleBookmarkMoved);
 // Function to handle bookmark movement within the bookmark tree
 function handleBookmarkMoved(id, moveInfo) {
-  if (!idsOfBookmarksInGoodFolder.includes(moveInfo.oldParentId) && idsOfBookmarksInGoodFolder.includes(moveInfo.parentId)) {
 
+  upToDateBookmarks.forEach((value) => {
+    console.log("bookmark kept alive: " + value.id);
+  });
+
+  idsOfBookmarksInGoodFolder.forEach((value) => {
+    console.log("bookmark in good folder: " + value);
+  });
+
+
+  if (!idsOfBookmarksInGoodFolder.includes(moveInfo.oldParentId)
+    && idsOfBookmarksInGoodFolder.includes(moveInfo.parentId)) {
+    chrome.bookmarks.get(id, (bookmarkArray) => {
+      const bookmark = bookmarkArray[0];
+      if (bookmark !== undefined && bookmark.title.split("|")[1] !== undefined) {
+        console.log("trouvé ajouté " + bookmark.title + " avec l'id " + bookmark.id)
+        upToDateBookmarks.set(bookmark.title.split("|")[1], bookmark);
+        idsOfBookmarksInGoodFolder.push(id)
+      }
+    });
+  } else if (idsOfBookmarksInGoodFolder.includes(moveInfo.oldParentId)
+    && !idsOfBookmarksInGoodFolder.includes(moveInfo.parentId)) {
+    chrome.bookmarks.get(id, (bookmarkArray) => {
+
+      const bookmark = bookmarkArray[0];
+      console.log("trouvé retirer " + bookmark.title + " id " + bookmark.id)
+
+      if (bookmark !== undefined && bookmark.title.split("|")[1] !== undefined) {
+        upToDateBookmarks.delete(bookmark.title.split("|")[1]);
+
+        var index = idsOfBookmarksInGoodFolder.indexOf(id);
+        idsOfBookmarksInGoodFolder.splice(index, 1);
+      }
+    });
   }
-  if (folder.includes(bookmarkInfo.parentId)) {
-    //handleBookmarkCreated(id,moveInfo);
-
-  } else if (true) {
-    //handleBookmarkRemoved(id,moveInfo);
-  }
-
 }
 
-// // Add event listeners to monitor bookmark changes
