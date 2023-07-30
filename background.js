@@ -30,7 +30,7 @@ function initializeAllFolderAndBookmarks() {
   idsOfBookmarksInGoodFolder = new Array();
 
   chrome.bookmarks.getTree(function (bookmarkTreeNodes) {
-    var folder = findFolder(bookmarkTreeNodes[0], "UpToDate");
+    var folder = findFolder(bookmarkTreeNodes[0], "UpdatedBookmarks");
     if (folder) {
 
       addAllFoldersAndBookmarks(folder);
