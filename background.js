@@ -99,7 +99,6 @@ chrome.tabs.onRemoved.addListener(function (tabid, removeInfo) {
 
 
 //Hapens chen a tab has a change in URL:
-// It is here that we want to update the favorite if it is an active tab (avoid looking at every tabs and every url redirect)
 chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
   if (changeInfo.url != undefined) {
     if (!excludedTabs.has(tabId)) {
@@ -285,7 +284,6 @@ function handleBookmarkMoved(id, moveInfo) {
   } else if (idsOfBookmarksInGoodFolder.includes(moveInfo.oldParentId)
     && !idsOfBookmarksInGoodFolder.includes(moveInfo.parentId)) {
     chrome.bookmarks.get(id, (bookmarkArray) => {
-
       const bookmark = bookmarkArray[0];
       //console.log("trouvé retirer " + bookmark.title + " id " + bookmark.id)
 
@@ -301,4 +299,3 @@ function handleBookmarkMoved(id, moveInfo) {
     });
   }
 }
-

@@ -1,6 +1,6 @@
 {
   "manifest_version": 2,
-  "name": "UpdatedBookmarks bookmarks manager",
+  "name": "UpdatedBookmarks : bookmarks updater",
   "version": "1.0",
   "description": "Keeps bookmarks updated inside the UpdatedBookmarks folder.",
   "permissions": [
@@ -17,6 +17,6 @@
   },
   "browser_action": {
     "default_popup": "popup.html",
-    "default_title": "ScanFolder Favorites"
+    "default_title": "UpdatedBookmarks"
   }
 }
