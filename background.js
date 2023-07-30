@@ -82,21 +82,20 @@ chrome.tabs.onCreated.addListener(function (tab) {
 
 function getMatchingUrlBookmark(urlToFind) {
   for (const element of upToDateBookmarks.keys()) {
+    console.log("getMatchingUrlBookmark " + element);
     if (urlToFind.includes(element)) {
+      console.log("found : " + element);
       return (upToDateBookmarks.get(element));
     }
   }
-
   return undefined;
 }
 
-//We remove it's ID (incase reuse ?)
-chrome.tabs.onRemoved.addListener(function (tab) {
-  // This function will be called when a new tab is created.
-  // Pending url will be the one to open the tab
-
+chrome.tabs.onRemoved.addListener(function (tabid, removeInfo) {
+  if (activeTabsId.has(tabid)) {
+    activeTabsId.delete(tabid);
+  }
 });
-
 
 
 //Hapens chen a tab has a change in URL:
@@ -106,6 +105,8 @@ chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
     if (!excludedTabs.has(tabId)) {
       var bookmark = getMatchingUrlBookmark(changeInfo.url);
       if (bookmark != undefined) {
+        console.log("tab of interest url changed " + bookmark.title);
+
         // Update the bookmark using the chrome.bookmarks.update method
         var newURlPropBookmark = {
           url: changeInfo.url
@@ -216,17 +217,31 @@ function handleBookmarkChanged(id, changeInfo) {
     if (bookmarkInActiveList !== undefined) {
       if (changeInfo.title.split("|")[1] !== undefined) {
         if (bookmarkInActiveList.url !== changeInfo.url || bookmarkInActiveList.title !== changeInfo.title) {
+          console.log("les urls :" + bookmarkInActiveList.url + " " + changeInfo.url + " " + bookmarkInActiveList.title + " " + changeInfo.title)
           bookmarkInActiveList.title = changeInfo.title.split("|")[1];
           bookmarkInActiveList.url = changeInfo.url;
-          console.log("bookmark modified by user and not program")
+          console.log("bookmark modified in upToDateBookmarks")
         }
       } else if (changeInfo.title.split("|")[1] === undefined && changeInfo.url !== undefined) {
-        console.log("bookmark modified by user to be removed from active list title: " + changeInfo.title.split("|")[1] + " url" + changeInfo.url)
+        console.log("bookmark modified by user to be removed from active list title changeInfo: " + changeInfo.title + " url " + changeInfo.url);
+        console.log("bookmark modified by user to be removed from active list title bookmarkInActiveList: " + bookmarkInActiveList.title + " url" + bookmarkInActiveList.url);
         chrome.bookmarks.get(id, (bookmarkArray) => {
           const bookmark = bookmarkArray[0];
-          console.log("Bookmark found: " + bookmark.title);
+          console.log("Bookmark found to delete: " + bookmarkInActiveList.title);
 
-          upToDateBookmarks.delete(changeInfo.title.split("|")[1]);
+          var keyToDeletElement;
+          upToDateBookmarks.forEach((value, key) => {
+            if (value.id == id) {
+              keyToDeletElement = key;
+            }
+            console.log("value before delete " + value.title);
+          });
+          upToDateBookmarks.delete(keyToDeletElement);
+
+          upToDateBookmarks.forEach((value) => {
+
+            console.log("value after delete " + value.title);
+          });
 
         });
       }
@@ -235,8 +250,8 @@ function handleBookmarkChanged(id, changeInfo) {
         console.log("bookmark modified by user to be added to active list" + changeInfo.url)
         chrome.bookmarks.get(id, (bookmarkArray) => {
           const bookmark = bookmarkArray[0];
-          console.log("Bookmark found: " + bookmark.title);
-          upToDateBookmarks.set(changeInfo.title.split("|")[1], bookmark);
+          console.log("Bookmark found here: " + bookmark.title);
+          upToDateBookmarks.set(bookmark.title.split("|")[1], bookmark);
         });
       }
     }
@@ -277,6 +292,9 @@ function handleBookmarkMoved(id, moveInfo) {
       if (bookmark !== undefined && bookmark.title.split("|")[1] !== undefined) {
         upToDateBookmarks.delete(bookmark.title.split("|")[1]);
 
+        upToDateBookmarks.forEach((value) => {
+          console.log("value after delet" + value.title);
+        });
         var index = idsOfBookmarksInGoodFolder.indexOf(id);
         idsOfBookmarksInGoodFolder.splice(index, 1);
       }
