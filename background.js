@@ -50,8 +50,6 @@ function getOrCreateBookmarkFolder(folderName, callback) {
     } else {
       // Folder doesn't exist, create it
       chrome.bookmarks.create({ title: folderName, parentId: "1" }, function (newFolder) {
-        console.log("children node " + newFolder.title + "children size" + newFolder.children);
-
         const folder = newFolder;
         callback(folder);
       });
