@@ -29,7 +29,7 @@ const bookmarkFolderName = 'UpdatedBookmarks';
 
 //The main methode launch to start scan/creation of the folder
 getOrCreateBookmarkFolder(bookmarkFolderName, function (folder) {
-  console.log(folder.title);
+  //console.log(folder.title);
   addAllFoldersAndBookmarks(folder);
 });
 
@@ -42,7 +42,7 @@ function getOrCreateBookmarkFolder(folderName, callback) {
       // Folder already exists, use its ID
       const folder = results[0];
       chrome.bookmarks.getSubTree(results[0].id, function (children) {
-        console.log("children  " + children?.length);
+        // console.log("children  " + children?.length);
         folder.children = children
         callback(folder);
 
@@ -62,10 +62,10 @@ function getOrCreateBookmarkFolder(folderName, callback) {
 //Adds all the bookmarks even if you have multiple subfolders
 function addAllFoldersAndBookmarks(node) {
   idsOfBookmarksInGoodFolder.push(node.id)
-  console.log("idsOfBookmarksInGoodFolder " + node.id + " " + node.title)
+  //console.log("idsOfBookmarksInGoodFolder " + node.id + " " + node.title)
 
   if (!node.url) {
-    console.log("children node " + node.children);
+    //console.log("children node " + node.children);
     if (node.children) {
       for (var i = 0; i < node.children.length; i++) {
         //Start recursive search
@@ -82,9 +82,9 @@ function addAllFoldersAndBookmarks(node) {
 
 function getMatchingUrlBookmark(urlToFind) {
   for (const element of upToDateBookmarks.keys()) {
-    console.log("getMatchingUrlBookmark " + element);
+    //console.log("getMatchingUrlBookmark " + element);
     if (urlToFind.includes(element)) {
-      console.log("found : " + element);
+      //console.log("found : " + element);
       return (upToDateBookmarks.get(element));
     }
   }
@@ -104,7 +104,7 @@ chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
     if (!excludedTabs.has(tabId)) {
       var bookmark = getMatchingUrlBookmark(changeInfo.url);
       if (bookmark != undefined) {
-        console.log("tab of interest url changed " + bookmark.title);
+        //console.log("tab of interest url changed " + bookmark.title);
 
         // Update the bookmark using the chrome.bookmarks.update method
         var newURlPropBookmark = {
@@ -140,7 +140,7 @@ async function setExtensionIcon(tabId, active) {
       });
     }
     catch (reason) {
-      console.log(reason);
+      //console.log(reason);
     }
   } else {
     try {
@@ -154,7 +154,7 @@ async function setExtensionIcon(tabId, active) {
       });
     }
     catch (reason) {
-      console.log(reason);
+      //console.log(reason);
     }
   }
 }
@@ -211,30 +211,30 @@ function handleBookmarkChanged(id, changeInfo) {
     if (bookmarkInActiveList !== undefined) {
       if (changeInfo.title.split("|")[1] !== undefined) {
         if (bookmarkInActiveList.url !== changeInfo.url || bookmarkInActiveList.title !== changeInfo.title) {
-          console.log("les urls :" + bookmarkInActiveList.url + " " + changeInfo.url + " " + bookmarkInActiveList.title + " " + changeInfo.title)
+          //console.log("les urls :" + bookmarkInActiveList.url + " " + changeInfo.url + " " + bookmarkInActiveList.title + " " + changeInfo.title)
           bookmarkInActiveList.title = changeInfo.title.split("|")[1];
           bookmarkInActiveList.url = changeInfo.url;
-          console.log("bookmark modified in upToDateBookmarks")
+          //console.log("bookmark modified in upToDateBookmarks")
         }
       } else if (changeInfo.title.split("|")[1] === undefined && changeInfo.url !== undefined) {
-        console.log("bookmark modified by user to be removed from active list title changeInfo: " + changeInfo.title + " url " + changeInfo.url);
-        console.log("bookmark modified by user to be removed from active list title bookmarkInActiveList: " + bookmarkInActiveList.title + " url" + bookmarkInActiveList.url);
+        //console.log("bookmark modified by user to be removed from active list title changeInfo: " + changeInfo.title + " url " + changeInfo.url);
+        //console.log("bookmark modified by user to be removed from active list title bookmarkInActiveList: " + bookmarkInActiveList.title + " url" + bookmarkInActiveList.url);
         chrome.bookmarks.get(id, (bookmarkArray) => {
           const bookmark = bookmarkArray[0];
-          console.log("Bookmark found to delete: " + bookmarkInActiveList.title);
+          //console.log("Bookmark found to delete: " + bookmarkInActiveList.title);
 
           var keyToDeletElement;
           upToDateBookmarks.forEach((value, key) => {
             if (value.id == id) {
               keyToDeletElement = key;
             }
-            console.log("value before delete " + value.title);
+            //console.log("value before delete " + value.title);
           });
           upToDateBookmarks.delete(keyToDeletElement);
 
           upToDateBookmarks.forEach((value) => {
 
-            console.log("value after delete " + value.title);
+            //console.log("value after delete " + value.title);
           });
 
         });
@@ -243,7 +243,7 @@ function handleBookmarkChanged(id, changeInfo) {
       if (changeInfo.title.split("|")[1] !== undefined && changeInfo.url !== undefined) {
         chrome.bookmarks.get(id, (bookmarkArray) => {
           const bookmark = bookmarkArray[0];
-          console.log("Bookmark found here: " + bookmark.title);
+          //console.log("Bookmark found here: " + bookmark.title);
           upToDateBookmarks.set(bookmark.title.split("|")[1], bookmark);
         });
       }
@@ -272,7 +272,7 @@ function handleBookmarkMoved(id, moveInfo) {
         upToDateBookmarks.delete(bookmark.title.split("|")[1]);
 
         upToDateBookmarks.forEach((value) => {
-          console.log("value after delet" + value.title);
+          //console.log("value after delet" + value.title);
         });
         var index = idsOfBookmarksInGoodFolder.indexOf(id);
         idsOfBookmarksInGoodFolder.splice(index, 1);
