@@ -5,9 +5,7 @@
   "description": "Keeps bookmarks updated inside the UpdatedBookmarks folder.",
   "permissions": [
     "tabs",
-    "storage",
-    "bookmarks",
-    "webNavigation"
+    "bookmarks"
   ],
   "background": {
     "scripts": [

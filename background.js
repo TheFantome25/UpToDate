@@ -41,7 +41,7 @@ function getOrCreateBookmarkFolder(folderName, callback) {
     if (results.length > 0) {
       // Folder already exists, use its ID
       const folder = results[0];
-      chrome.bookmarks.getChildren(results[0].id, function (children) {
+      chrome.bookmarks.getSubTree(results[0].id, function (children) {
         console.log("children  " + children?.length);
         folder.children = children
         callback(folder);
