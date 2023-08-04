@@ -42,7 +42,7 @@ function getOrCreateBookmarkFolder(folderName, callback) {
       // Folder already exists, use its ID
       const folder = results[0];
       chrome.bookmarks.getSubTree(results[0].id, function (children) {
-        // console.log("children  " + children?.length);
+        //console.log("children  " + children?.length);
         folder.children = children
         callback(folder);
 
@@ -128,13 +128,14 @@ chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
 
 
 async function setExtensionIcon(tabId, active) {
+  //console.log("setExtensionIcon " + tabId + active)
   if (active) {
     try {
-      await chrome.browserAction.setBadgeText({
+      await chrome.action.setBadgeText({
         tabId: tabId,
         text: "1",
       });
-      await chrome.browserAction.setBadgeBackgroundColor({
+      await chrome.action.setBadgeBackgroundColor({
         tabId: tabId,
         color: "#156924"
       });
@@ -144,11 +145,11 @@ async function setExtensionIcon(tabId, active) {
     }
   } else {
     try {
-      await chrome.browserAction.setBadgeText({
+      await chrome.action.setBadgeText({
         tabId: tabId,
         text: "0",
       });
-      await chrome.browserAction.setBadgeBackgroundColor({
+      await chrome.action.setBadgeBackgroundColor({
         tabId: tabId,
         color: "#363636"
       });
@@ -171,6 +172,7 @@ chrome.bookmarks.onCreated.addListener(handleBookmarkCreated);
 function handleBookmarkCreated(id, bookmarkInfo) {
   //Check if it is a bookmark of our elements
   if (idsOfBookmarksInGoodFolder.includes(bookmarkInfo.parentId)) {
+    //console.log("bookmark of interest created or moved " + bookmarkInfo);
 
     idsOfBookmarksInGoodFolder.push(id);
 
@@ -201,10 +203,14 @@ function handleBookmarkRemoved(id, removeInfo) {
 chrome.bookmarks.onChanged.addListener(handleBookmarkChanged);
 function handleBookmarkChanged(id, changeInfo) {
   if (idsOfBookmarksInGoodFolder.includes(id)) {
+    //console.log("bookmark of interest modified " + id + " " + changeInfo.title + changeInfo.url);
+
+    //if it is in the list : modify it
     let bookmarkInActiveList;
     upToDateBookmarks.forEach((value) => {
       if (value.id === id) {
         bookmarkInActiveList = value;
+        //console.log("bookmark found in active list ");
       }
     });
 
@@ -241,6 +247,7 @@ function handleBookmarkChanged(id, changeInfo) {
       }
     } else {
       if (changeInfo.title.split("|")[1] !== undefined && changeInfo.url !== undefined) {
+        //console.log("bookmark modified by user to be added to active list" + changeInfo.url)
         chrome.bookmarks.get(id, (bookmarkArray) => {
           const bookmark = bookmarkArray[0];
           //console.log("Bookmark found here: " + bookmark.title);
@@ -255,11 +262,22 @@ function handleBookmarkChanged(id, changeInfo) {
 chrome.bookmarks.onMoved.addListener(handleBookmarkMoved);
 // Function to handle bookmark movement within the bookmark tree
 function handleBookmarkMoved(id, moveInfo) {
+
+  upToDateBookmarks.forEach((value) => {
+    //console.log("bookmark kept alive: " + value.id);
+  });
+
+  idsOfBookmarksInGoodFolder.forEach((value) => {
+    //console.log("bookmark in good folder: " + value);
+  });
+
+
   if (!idsOfBookmarksInGoodFolder.includes(moveInfo.oldParentId)
     && idsOfBookmarksInGoodFolder.includes(moveInfo.parentId)) {
     chrome.bookmarks.get(id, (bookmarkArray) => {
       const bookmark = bookmarkArray[0];
       if (bookmark !== undefined && bookmark.title.split("|")[1] !== undefined) {
+        //console.log("trouvé ajouté " + bookmark.title + " avec l'id " + bookmark.id)
         upToDateBookmarks.set(bookmark.title.split("|")[1], bookmark);
         idsOfBookmarksInGoodFolder.push(id)
       }
@@ -268,6 +286,8 @@ function handleBookmarkMoved(id, moveInfo) {
     && !idsOfBookmarksInGoodFolder.includes(moveInfo.parentId)) {
     chrome.bookmarks.get(id, (bookmarkArray) => {
       const bookmark = bookmarkArray[0];
+      //console.log("trouvé retirer " + bookmark.title + " id " + bookmark.id)
+
       if (bookmark !== undefined && bookmark.title.split("|")[1] !== undefined) {
         upToDateBookmarks.delete(bookmark.title.split("|")[1]);
 
