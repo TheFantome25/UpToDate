@@ -1,15 +1,14 @@
-# UpToDate
-Chrome extension : Keeps the url of your bookmarks up to date.
+# UpdatedBookmarks
+Keeps bookmarks updated in a folder named UpdatedBookmarks.
+To be active title of bookmarks needs to follow the format: 
+nameOfBookmark |http://url/You/Want/To/Folow.com/specificElement
 
-You need to have create a folder named UpToDate. 
-You add and manage the tree inside it as you want.
-When you open a new tab from one of the bookmarks(main folder UpToDate) the extention will keep updating the url of that bookmark until you close it
-
-I just find it perfect to folow differents scans/tutorials withouth having to manually edit the bookmark once i'm done reading.
-
-
+"specificElement" should be specific to the book/scan you are reading but should not contain the page number !
+exemple: 
+Walking One's Own Path |https://www.webtoons.com/en/fantasy/the-lazy-lord-masters-the-sword/s
+The full url of the site is :
+https://www.webtoons.com/en/fantasy/the-lazy-lord-masters-the-sword/s2-ep-83-checking-out-the-past-2/viewer?title_no=3349&episode_no=84
+every urlChange will be caught since it is '/s...' but you will not change the bookmark once you go back to the menu of that manga.
 
 uses :
-chrome.tabs.onCreated.addListener(function (tab) to see if a new tab has a bookmark in it pendingUrl to keep track of it (and not ever tabs !)
-
 chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) to change the url of the bookmarks
