@@ -128,13 +128,14 @@ chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
 
 
 async function setExtensionIcon(tabId, active) {
+  console.log("setExtensionIcon " + tabId + active)
   if (active) {
     try {
-      await chrome.browserAction.setBadgeText({
+      await chrome.action.setBadgeText({
         tabId: tabId,
         text: "1",
       });
-      await chrome.browserAction.setBadgeBackgroundColor({
+      await chrome.action.setBadgeBackgroundColor({
         tabId: tabId,
         color: "#156924"
       });
@@ -144,11 +145,11 @@ async function setExtensionIcon(tabId, active) {
     }
   } else {
     try {
-      await chrome.browserAction.setBadgeText({
+      await chrome.action.setBadgeText({
         tabId: tabId,
         text: "0",
       });
-      await chrome.browserAction.setBadgeBackgroundColor({
+      await chrome.action.setBadgeBackgroundColor({
         tabId: tabId,
         color: "#363636"
       });

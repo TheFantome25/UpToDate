@@ -1,5 +1,5 @@
 {
-  "manifest_version": 2,
+  "manifest_version": 3,
   "name": "UpdatedBookmarks : bookmarks updater",
   "version": "1.0.1",
   "description": "Keeps bookmarks updated inside the UpdatedBookmarks folder.",
@@ -8,12 +8,10 @@
     "bookmarks"
   ],
   "background": {
-    "scripts": [
-      "background.js"
-    ],
-    "persistent": false
+    "service_worker": "background.js",
+    "type": "module"
   },
-  "browser_action": {
+  "action": {
     "default_popup": "popup.html",
     "default_title": "UpdatedBookmarks"
   }
